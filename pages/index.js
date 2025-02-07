@@ -7,12 +7,15 @@ export default function Home() {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [error, setError] = useState('');
+  const [editingBook, setEditingBook] = useState(null); // Track the book being edited
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
 
   useEffect(() => {
     fetchBooks();
   }, []);
 
   const fetchBooks = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get('http://localhost:3000/books');
       setBooks(response.data);
@@ -20,19 +23,62 @@ export default function Home() {
     } catch (error) {
       console.error('Error fetching books:', error);
       setError('Failed to fetch books. Please check the backend server.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!title || !author) {
+      setError('Title and author are required.');
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      await axios.post('http://localhost:3000/books', { title, author });
+      if (editingBook) {
+        // Update the book
+        await axios.put(`http://localhost:3000/books/${editingBook._id}`, { title, author });
+        setEditingBook(null); // Reset editing state
+      } else {
+        // Add a new book
+        await axios.post('http://localhost:3000/books', { title, author });
+      }
       setTitle('');
       setAuthor('');
       fetchBooks();
     } catch (error) {
-      console.error('Error adding book:', error);
-      setError('Failed to add book. Please try again.');
+      console.error('Error adding/updating book:', error);
+      setError('Failed to add/update book. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (book) => {
+    setEditingBook(book);
+    setTitle(book.title);
+    setAuthor(book.author);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this book?');
+    if (!confirmDelete) return;
+
+    setIsLoading(true);
+    try {
+      await axios.delete(`http://localhost:3000/books/${id}`);
+      fetchBooks();
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      if (error.response && error.response.status === 404) {
+        setError('Book not found.');
+      } else {
+        setError('Failed to delete book. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,23 +107,39 @@ export default function Home() {
             required
           />
         </div>
-        <button type="submit" className={styles.button}>
-          Add Book
+        <button type="submit" className={styles.button} disabled={isLoading}>
+          {isLoading ? 'Processing...' : editingBook ? 'Update Book' : 'Add Book'}
         </button>
       </form>
 
-      <div className={styles.bookList}>
-        {books.map((book) => (
-          <div key={book._id} className={styles.bookCard}>
-            <h2 className={styles.bookTitle}>{book.title}</h2>
-            <p className={styles.bookAuthor}>by {book.author}</p>
-            <div className={styles.bookActions}>
-              <button className={styles.editButton}>Edit</button>
-              <button className={styles.deleteButton}>Delete</button>
+      {isLoading ? (
+        <p>Loading books...</p>
+      ) : (
+        <div className={styles.bookList}>
+          {books.map((book) => (
+            <div key={book._id} className={styles.bookCard}>
+              <h2 className={styles.bookTitle}>{book.title}</h2>
+              <p className={styles.bookAuthor}>by {book.author}</p>
+              <div className={styles.bookActions}>
+                <button
+                  onClick={() => handleEdit(book)}
+                  className={styles.editButton}
+                  disabled={isLoading}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(book._id)}
+                  className={styles.deleteButton}
+                  disabled={isLoading}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
