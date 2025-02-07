@@ -1,3 +1,49 @@
+.searchBar {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db; /* Light gray border */
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff; /* White background */
+  color: #1f2937; /* Dark gray text */
+}
+
+.searchInput:focus {
+  border-color: #3b82f6; /* Blue accent */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Subtle blue glow */
+}
+
+.searchInput::placeholder {
+  color: #9ca3af; /* Light gray placeholder text */
+}
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db; /* Light gray border */
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff; /* White background */
+  color: #1f2937; /* Dark gray text */
+}
+
+.input:focus {
+  border-color: #3b82f6; /* Blue accent */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Subtle blue glow */
+}
+
+.input::placeholder {
+  color: #9ca3af; /* Light gray placeholder text */
+}
 .container {
   min-height: 100vh;
   background-color: #f9fafb; /* Light gray background */
@@ -57,18 +103,22 @@
   border-radius: 0.5rem;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  background-color: #ffffff; /* White background */
-  color: #1f2937; /* Dark gray text */
+  transition: border-color 0.3s ease;
 }
 
 .input:focus {
   border-color: #3b82f6; /* Blue accent */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Subtle blue glow */
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .button {
-  width: 100%;
+  flex: 1; /* Take up remaining space */
   padding: 0.75rem;
   background-color: #3b82f6; /* Blue accent */
   color: white;
@@ -78,11 +128,40 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-top: 1rem;
 }
 
-.button:hover {
+.button:disabled {
+  background-color: #9ca3af; /* Gray when disabled */
+  cursor: not-allowed;
+}
+
+.button:hover:not(:disabled) {
   background-color: #2563eb; /* Darker blue */
+}
+
+.cancelButton {
+  width: 40px; /* Fixed width for a circular button */
+  height: 40px; /* Fixed height for a circular button */
+  background-color: #ef4444; /* Red */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Makes the button circular */
+  font-size: 1.5rem; /* Larger font size for the X */
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.cancelButton:hover {
+  background-color: #dc2626; /* Darker red on hover */
+}
+
+.cancelButton:disabled {
+  background-color: #9ca3af; /* Gray when disabled */
+  cursor: not-allowed;
 }
 
 .bookList {
@@ -167,11 +246,4 @@
 
 .deleteButton:hover {
   background-color: #dc2626; /* Darker red */
-}
-.input::placeholder {
-  color: #9ca3af; /* Light gray */
-}
-.input:disabled {
-  background-color: #f3f4f6; /* Light gray */
-  cursor: not-allowed;
 }

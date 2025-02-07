@@ -9,6 +9,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [editingBook, setEditingBook] = useState(null); // Track the book being edited
   const [isLoading, setIsLoading] = useState(false); // Track loading state
+  const [searchQuery, setSearchQuery] = useState(''); // Track search query
 
   useEffect(() => {
     fetchBooks();
@@ -62,6 +63,12 @@ export default function Home() {
     setAuthor(book.author);
   };
 
+  const handleCancelEdit = () => {
+    setEditingBook(null); // Reset editing state
+    setTitle('');
+    setAuthor('');
+  };
+
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this book?');
     if (!confirmDelete) return;
@@ -82,11 +89,29 @@ export default function Home() {
     }
   };
 
+  // Filter books based on search query
+  const filteredBooks = books.filter(
+    (book) =>
+      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Book List</h1>
 
       {error && <div className={styles.errorMessage}>{error}</div>}
+
+      {/* Search Bar */}
+      <div className={styles.searchBar}>
+        <input
+          type="text"
+          placeholder="Search by title or author..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={styles.searchInput}
+        />
+      </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
@@ -107,16 +132,28 @@ export default function Home() {
             required
           />
         </div>
-        <button type="submit" className={styles.button} disabled={isLoading}>
-          {isLoading ? 'Processing...' : editingBook ? 'Update Book' : 'Add Book'}
-        </button>
+        <div className={styles.formActions}>
+          <button type="submit" className={styles.button} disabled={isLoading}>
+            {isLoading ? 'Processing...' : editingBook ? 'Update Book' : 'Add Book'}
+          </button>
+          {editingBook && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className={styles.cancelButton}
+              disabled={isLoading}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </form>
 
       {isLoading ? (
         <p>Loading books...</p>
       ) : (
         <div className={styles.bookList}>
-          {books.map((book) => (
+          {filteredBooks.map((book) => (
             <div key={book._id} className={styles.bookCard}>
               <h2 className={styles.bookTitle}>{book.title}</h2>
               <p className={styles.bookAuthor}>by {book.author}</p>
