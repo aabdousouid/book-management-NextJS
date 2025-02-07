@@ -8,7 +8,7 @@ export default function Home() {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [error, setError] = useState('');
-  const [editingBook, setEditingBook] = useState(null); // Track the book being edited
+  const [editingBook, setEditingBook] = useState(); // Track the book being edited
   const [isLoading, setIsLoading] = useState(false); // Track loading state
   const [searchQuery, setSearchQuery] = useState(''); // Track search query
 
@@ -174,12 +174,12 @@ export default function Home() {
 
       {/* Edit Book Popup */}
       {editingBook && (
-        <EditBookModal
-          book={editingBook}
-          onSave={handleSaveEdit}
-          onClose={handleCancelEdit}
-        />
-      )}
+  <EditBookModal
+    book={editingBook}
+    onSave={handleSaveEdit}
+    onClose={handleCancelEdit}
+  />
+)}
     </div>
   );
 }
