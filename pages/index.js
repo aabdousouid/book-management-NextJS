@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from '../styles/Home.module.css';
+import EditBookModal from './components/EditBookModal';
 
 export default function Home() {
   const [books, setBooks] = useState([]);
@@ -38,20 +39,13 @@ export default function Home() {
 
     setIsLoading(true);
     try {
-      if (editingBook) {
-        // Update the book
-        await axios.put(`http://localhost:3000/books/${editingBook._id}`, { title, author });
-        setEditingBook(null); // Reset editing state
-      } else {
-        // Add a new book
-        await axios.post('http://localhost:3000/books', { title, author });
-      }
+      await axios.post('http://localhost:3000/books', { title, author });
       setTitle('');
       setAuthor('');
       fetchBooks();
     } catch (error) {
-      console.error('Error adding/updating book:', error);
-      setError('Failed to add/update book. Please try again.');
+      console.error('Error adding book:', error);
+      setError('Failed to add book. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -59,14 +53,24 @@ export default function Home() {
 
   const handleEdit = (book) => {
     setEditingBook(book);
-    setTitle(book.title);
-    setAuthor(book.author);
+  };
+
+  const handleSaveEdit = async (updatedBook) => {
+    setIsLoading(true);
+    try {
+      await axios.put(`http://localhost:3000/books/${editingBook._id}`, updatedBook);
+      setEditingBook(null); // Close the modal
+      fetchBooks();
+    } catch (error) {
+      console.error('Error updating book:', error);
+      setError('Failed to update book. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancelEdit = () => {
-    setEditingBook(null); // Reset editing state
-    setTitle('');
-    setAuthor('');
+    setEditingBook(null); // Close the modal
   };
 
   const handleDelete = async (id) => {
@@ -134,18 +138,8 @@ export default function Home() {
         </div>
         <div className={styles.formActions}>
           <button type="submit" className={styles.button} disabled={isLoading}>
-            {isLoading ? 'Processing...' : editingBook ? 'Update Book' : 'Add Book'}
+            {isLoading ? 'Processing...' : 'Add Book'}
           </button>
-          {editingBook && (
-            <button
-              type="button"
-              onClick={handleCancelEdit}
-              className={styles.cancelButton}
-              disabled={isLoading}
-            >
-              ×
-            </button>
-          )}
         </div>
       </form>
 
@@ -176,6 +170,15 @@ export default function Home() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Edit Book Popup */}
+      {editingBook && (
+        <EditBookModal
+          book={editingBook}
+          onSave={handleSaveEdit}
+          onClose={handleCancelEdit}
+        />
       )}
     </div>
   );
